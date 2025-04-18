@@ -22,9 +22,16 @@
         </option>
       </select>
     </div>
+    
 
     <!-- Sorting Controls -->
     <div class="flex gap-2 mb-6 flex-wrap">
+      <router-link 
+        to="/products/create"
+        class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+      >
+        Create New Product
+      </router-link>
       <button
         v-for="field in sortableFields"
         :key="field"
@@ -72,6 +79,11 @@
             >
               Price
             </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Action
+            </th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -87,6 +99,20 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               ${{ product.price.toFixed(2) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <router-link
+                :to="`/products/edit/${product.id}`"
+                class="text-blue-500 hover:text-blue-700 mr-4"
+              >
+                Edit
+              </router-link>
+              <button
+                @click="deleteProduct(product.id)"
+                class="text-red-500 hover:text-red-700"
+              >
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>
@@ -190,5 +216,18 @@ const setSortField = (field: SortField) => {
 
 const toggleSortDirection = () => {
   sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
+};
+
+const deleteProduct = async (id: string) => {
+  if (confirm("Are you sure you want to delete this product?")) {
+    try {
+      await productService.delete(id);
+      // If using Pinia, update the store
+      // Or reload products
+      products.value = products.value.filter((p) => p.id !== id);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  }
 };
 </script>
