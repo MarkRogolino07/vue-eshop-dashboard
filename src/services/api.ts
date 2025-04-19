@@ -1,32 +1,38 @@
-import { Product } from "@/types/product";
+import { PaginatedResponse, Product, ProductForm } from "@/types/product";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://api.your-eshop.com/v1", // Replace with your API URL
-  timeout: 5000,
+  baseURL: "http://localhost:3001/api",
 });
 
-// Products API
-const productService = {
-  async getAll() {
-    return api.get("/products");
-  },
-
-  async getById(id: string) {
-    return api.get(`/products/${id}`);
-  },
-
-  async create(product: Omit<Product, "id" | "createdAt">) {
-    return api.post("/products", product);
-  },
-
-  async update(id: string, product: Partial<Product>) {
-    return api.put(`/products/${id}`, product);
-  },
-
-  async delete(id: string) {
-    return api.delete(`/products/${id}`);
-  },
+export const getProducts = async (
+  page: number = 1,
+  limit: number = 10,
+  sortBy?: string,
+  sortOrder: "asc" | "desc" = "asc",
+  type?: string
+) => {
+  const response = await api.get<PaginatedResponse<Product>>("/products", {
+    params: { page, limit, sortBy, sortOrder, type },
+  });
+  return response.data;
 };
 
-export default productService;
+export const getProduct = async (id: string) => {
+  const response = await api.get<Product>(`/products/${id}`);
+  return response.data;
+};
+
+export const createProduct = async (product: ProductForm) => {
+  const response = await api.post<Product>("/products", product);
+  return response.data;
+};
+
+export const updateProduct = async (id: string, product: ProductForm) => {
+  const response = await api.put<Product>(`/products/${id}`, product);
+  return response.data;
+};
+
+export const deleteProduct = async (id: string) => {
+  await api.delete(`/products/${id}`);
+};
